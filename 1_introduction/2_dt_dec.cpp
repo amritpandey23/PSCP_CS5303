@@ -8,7 +8,7 @@ using namespace std;
 int main() 
 {
     /* In C++, variables are declared in following syntax:
-        <data_type> <var_name> = <assignment_val>;
+        <data_type> <var_name> [= assignment_val];
         eg:
             int amount = 1000; */
     int amount = 1000;
