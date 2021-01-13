@@ -1,7 +1,7 @@
 /*
-TITLE:
-AUTHOR:
-DATE: 
+TITLE: Question 4, Assignment 3, PSP Lab
+AUTHOR: Amrit Pandey MC20103
+DATE: 06 Jan 2021
 */
 
 #include <iostream>
@@ -14,7 +14,7 @@ int main()
     bool c1, c2, c3;
     int hrd, ts;
     float cbn;
-    cout << "Enter hardness (0 - 100), carbon content(0.0 - 1.0) and tensile strength: ";
+    cout << "Enter hardness (0 - 100),\ncarbon content(0.0 - 1.0)\nand tensile strength: ";
     cin >> hrd >> cbn >> ts;
     c1 = hrd > 50;
     c2 = cbn < 0.7;

@@ -1,7 +1,7 @@
 /*
-TITLE:
-AUTHOR:
-DATE: 
+TITLE: Question 5, Assignment 3, PSP Lab
+AUTHOR: Amrit Pandey MC20103
+DATE: 06 Jan 2021
 */
 
 #include <iostream>
