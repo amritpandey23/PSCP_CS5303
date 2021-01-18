@@ -1,3 +1,6 @@
+/* TITLE: 
+DATE:
+AUTHOR: Amrit Pandey MC20103*/
 #include <iostream>
 using namespace std;
 #define POPULATION 9000

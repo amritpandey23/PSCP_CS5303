@@ -1,6 +1,6 @@
 /* TITLE: 
 DATE:
-AUTHOR: */
+AUTHOR: Amrit Pandey MC20103*/
 
 #include <iostream>
 #include <math.h>

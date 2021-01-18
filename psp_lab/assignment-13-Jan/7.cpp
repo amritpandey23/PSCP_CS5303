@@ -1,6 +1,6 @@
 /* TITLE: Assignment 13 Jan 2021, Question 7
 DATE: 13 Jan 2021
-AUTHOR: Amrit Pandey @ok_ape */
+AUTHOR: Amrit Pandey MC20103 */
 #include <iostream>
 using namespace std;
 
