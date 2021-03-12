@@ -1,241 +1,193 @@
 #include <iostream>
-#include <cstring>
-#define NAME_LEN 20
-
+#include <string.h>
+#include <iomanip>
 using namespace std;
 
-enum                                                        // enum datatype
+void format_date(char[8]);
+int cust_id = 10001;
+int emp_id = 1201;
+
+struct Account
 {
-    MAKE = 1,
-    DEPOSIT,
-    WITHDRAW,
-    INQUIRE,
-    EXIT
+    int acc_id;
+    char type;
+    float balance;
+    struct Statement *stmt_list;
 };
 
-enum gender
+struct Statement
 {
-    MALE = 0, 
-    FEMALE
+    float amount;
+    float final_bal;
+    struct Statement *next;
 };
 
-typedef struct // Account struct
+class Individual
 {
-    int accID;
-    int balance;
-    Statement *list;
-    Individual *indv;
-} Account;
-
-typedef struct
-{
-    int amt;
-    Statement *stmt;
-} Statement;
-
-class Individual {
-    public:
-        string name;
-        int dob;    //DDMMYYYY
-        enum gender gen;
-        Account *acc;
-        Individual(Account *acc, string name, int dob, enum gender gen)
-        {
-            this->name = name;
-            this->dob = dob;
-            this->gen = gen;
-            this->acc = acc;
-        }
-};
-
-class Employee: public Individual {
-    public:
-        int emp_id;
-        Employee()
-        Employee(
-            int emp_id,
-            Account *salAcc, 
-            string name, 
-            int dob, 
-            enum gender gen
-        ):Individual(salAcc, name, dob, gen)
-        {
-            this->emp_id = emp_id;
-        }
-};                         // Inheritence
-
-class Customer: public Individual {
-    public:
-        int cust_id;
-        Employee *asgn_emp;
-        Customer()
-        Customer(
-            int cust_id,
-            Employee *asgn_emp,
-            Account *acc, 
-            string name, 
-            int dob, 
-            enum gender gen
-        ):Individual(acc, name, dob, gen)
-        {
-            this->cust_id = cust_id;
-            this->asgn_emp = asgn_emp;
-        }
-};
-
-class Bank                                                  // Polymorphism: binding variable and associated methods together
-{
-private:
-    Account *accounts;
-    Employee *employees;
-    Customer *customers;
-    const static float version_num = 0.10;
-
 public:
-    Bank() // constructor
+    char dob[8], name[20];
+    struct Account *acc;
+    Individual()
     {
-        Account accounts[100];
-        Employee employees[10];
-        Customer customers[100];
-        this->accounts = ptr;                               // object this pointer
-        this->accNum = 0;
+        strcpy(name, "unknown");
+        strcpy(dob, "01011971");
+        acc = NULL;
     }
-    Bank(Account *ptr) // constructor overloading
-    {
-        this->accounts = ptr;
-        this->accNum = sizeof(this->accounts) / sizeof(Account);
-    }
-    friend Account *get_all_accounts(Bank);
-    static void what_is();
-    void showMenu() // class member function
-    {
-        cout << "---------Menu-----------" << endl;
-        cout << "1.make account" << endl;
-        cout << "2.deposit" << endl;
-        cout << "3.withdraw" << endl;
-        cout << "4.show Account Info" << endl;
-        cout << "5.quit" << endl;
-    }
-    void makeAccount()
-    {
-        int id;
-        char name[NAME_LEN];
-        int balance;
-        cout << "[(MAKE ACCOUNT)]" << endl;
-        cout << "ID (account ID):";
-        cin >> id;
-        cout << "(name):";
-        cin >> name;
-        cout << "(deposit money):";
-        cin >> balance;
-        cout << endl;
-        accounts[accNum].accID = id;
-        accounts[accNum].balance = balance;
-        strcpy(accounts[accNum].cusName, name);
-        accNum++;
-    }
-    void depositMoney()
-    {
-        int money;
-        int id;
-        cout << "[(DEPOSIT)]" << endl;
-        cout << "ID(account ID):";
-        cin >> id;
-        cout << "(deposit money):";
-        cin >> money;
-        for (int i = 0; i < accNum; i++)
-        {
-            if (accounts[i].accID == id)
-            {
-                accounts[i].balance += money;
-                cout << "(Deposit success)" << endl;
-                return;
-            }
-        }
-        cout << "ID(check your id)" << endl;
-    }
-    void withdrawMoney()
-    {
-        int money;
-        int id;
-        cout << "[(WITHDRAW)]" << endl;
-        cout << "ID(account ID):";
-        cin >> id;
-        cout << "(withdraw money):";
-        cin >> money;
-        for (int i = 0; i < accNum; i++)
-        {
-            if (accounts[i].accID == id)
-            {
-
-                if (accounts[i].balance < money)
-                {
-                    cout << "�ܾ� ����" << endl;
-                    return;
-                }
-                accounts[i].balance -= money;
-                cout << "��ݿϷ�(Deposit success)" << endl;
-                return;
-            }
-        }
-        cout << "��ȿ���� ���� ID(check your id)" << endl;
-    }
-    void showAllAccInfo();
+    void create_account(int, char, float);
+    void display_account_details();
+    void transit_amount(float);
 };
 
-void Bank::what_is()                                            // class static function definition
+void Individual::create_account(int id, char type, float bal = 0)
 {
-    cout << "WHAT IS BANK CLASS" << endl;
-    cout << "\tBank which store accounts of individuals\n";
-    cout << "\tand provides various methods and functions\n";
-    cout << "\tto manage their accounts.\n";
-    cout << "\tVersion Number: " << version_num << endl;        // class static member access only by static function
+    struct Account *acc = new struct Account;
+    struct Statement *stmt = new struct Statement;
+
+    stmt->amount = 0;
+    stmt->next = NULL;
+
+    acc->acc_id = id;
+    acc->type = type;
+    acc->balance = bal;
+    acc->stmt_list = stmt;
+
+    this->acc = acc;
 }
 
-void Bank::showAllAccInfo()                                     // scope resolution operator
+void Individual::display_account_details()
 {
-    for (int i = 0; i < accNum; i++)
+    char res;
+    cout << "\tHolder's NAME: " << name << endl;
+    cout << "\tHolder's DOB: ";
+    format_date(this->dob);
+    cout << endl;
+    cout << "\tAccount ID: " << acc->acc_id << endl;
+    cout << "\tAccount TYPE: " << acc->type << endl;
+    cout << "\tBALANCE: " << acc->balance << endl;
+    cout << "Do you want to generate statement?(Y/N): ";
+    cin >> res;
+    if (res == 'Y' || res == 'y')
     {
-        cout << "���� ID (id)" << accounts[i].accID << endl;
-        cout << "�̸� (name)" << accounts[i].cusName << endl;
-        cout << "�ܾ� (balance)" << accounts[i].balance << endl;
-    }
-}
-
-Account *get_all_account(Bank b1)
-{
-    return b1.accounts;
-}
-
-int main(void)
-{
-    int choice;
-    Bank b1;
-    while (1)
-    {
-        b1.showMenu();
-        cout << "select: ";
-        cin >> choice;
-        cout << endl;
-        switch (choice)
+        if (acc->stmt_list->amount == 0)
         {
-        case MAKE:
-            b1.makeAccount();
-            break;
-        case DEPOSIT:
-            b1.depositMoney();
-            break;
-        case WITHDRAW:
-            b1.withdrawMoney();
-            break;
-        case INQUIRE:
-            b1.showAllAccInfo();
-            break;
-        case EXIT:
-            return 0;
-        default:
-            cout << "Illegeal Section.." << endl;
+            cout << "This is a fresh account, no transaction has been made." << endl;
+        }
+        else
+        {
+            int i = 1;
+            struct Statement *s = acc->stmt_list;
+            cout << endl;
+            cout << "\tSR." << setw(13) << "AMOUNT" << setw(13) << "BALANCE" << endl;
+            cout << "\t---" << setw(13) << "------" << setw(13) << "-------" << endl;
+            while (s != NULL)
+            {
+                cout << "\t" << i++ << setw(10);
+                s->amount > 0 && cout << "+";
+                cout << s->amount << setw(10) << s->final_bal << endl;
+                s = s->next;
+            }
         }
     }
+    else if (res == 'N' || res == 'n')
+    {
+        cout << "\tDONE." << endl;
+    }
+    else
+    {
+        cout << "Invalid response, try again later." << endl;
+    }
+}
+
+void Individual::transit_amount(float amt)
+{
+    if (amt == 0)
+    {
+        cout << "Sorry, transaction of 0.00 is not allowed." << endl;
+        return;
+    }
+
+    acc->balance += amt;
+
+    if (acc->stmt_list->amount == 0)
+    {
+        acc->stmt_list->amount = amt;
+        acc->stmt_list->final_bal = acc->balance;
+        acc->stmt_list->next = NULL;
+        return;
+    }
+
+    struct Statement *s = acc->stmt_list;
+    struct Statement *stmt = new struct Statement;
+    stmt->amount = amt;
+    stmt->final_bal = acc->balance;
+    stmt->next = NULL;
+    while (s->next != NULL)
+    {
+        s = s->next;
+    }
+    s->next = stmt;
+}
+
+class Customer : public Individual
+{
+public:
+    Customer()
+    {
+        float bal;
+        cout << "Enter customer's NAME: ";
+        cin.getline(this->name, 20);
+        cout << "Date of Birth DOB (DDMMYYYY): ";
+        cin.getline(this->dob, 9);
+        cout << "Initial deposit AMOUNT: ";
+        cin >> bal;
+        this->create_account(cust_id, 'C');
+        this->transit_amount(bal);
+        cust_id += 12;
+    }
+};
+
+class Employee : public Individual
+{
+public:
+    char designation[20];
+    Employee()
+    {
+        float bal;
+        bal = 30000;
+        cout << "Enter employee's NAME: ";
+        cin.getline(this->name, 20);
+        cout << "Date of Birth DOB (DDMMYYYY): ";
+        cin.getline(this->dob, 9);
+        cout << "Employee's DESIGNATION: ";
+        cin.getline(this->designation, 20);
+        this->create_account(emp_id, 'C');
+        this->transit_amount(bal);
+        emp_id += 12;
+    }
+};
+
+class Bank
+{
+};
+
+void format_date(char dob[8])
+{
+    int i = 1;
+    while (i != 9)
+    {
+        if (i == 3 || i == 5)
+        {
+            cout << "-";
+        }
+        cout << dob[i++ - 1];
+    }
+}
+
+int main()
+{
+    Customer c1;
+    c1.transit_amount(-23);
+    c1.transit_amount(70);
+    c1.display_account_details();
     return 0;
 }
