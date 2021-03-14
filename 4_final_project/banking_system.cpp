@@ -4,8 +4,6 @@
 using namespace std;
 
 void format_date(char[8]);
-int cust_id = 10001;
-int emp_id = 1201;
 
 struct Account
 {
@@ -22,7 +20,7 @@ struct Statement
     struct Statement *next;
 };
 
-class Individual
+class Individual // base class
 {
 public:
     char dob[8], name[20];
@@ -36,11 +34,15 @@ public:
     void create_account(int, char, float);
     void display_account_details();
     void transit_amount(float);
+    virtual void base_sal() // virtual functions
+    {
+        cout << "Your base salary is 0.0";
+    }
 };
 
-void Individual::create_account(int id, char type, float bal = 0)
+void Individual::create_account(int id, char type, float bal = 0) // scope resolution operator
 {
-    struct Account *acc = new struct Account;
+    struct Account *acc = new struct Account; // dynamic memory allocation
     struct Statement *stmt = new struct Statement;
 
     stmt->amount = 0;
@@ -128,8 +130,11 @@ void Individual::transit_amount(float amt)
     s->next = stmt;
 }
 
-class Customer : public Individual
+class Customer : public Individual // derived class: inheritence
 {
+private:
+    static int cust_id;
+
 public:
     Customer()
     {
@@ -144,12 +149,33 @@ public:
         this->transit_amount(bal);
         cust_id += 12;
     }
+
+    Customer(float bal, char name[20], char dob[9])
+    {
+        strcpy(this->name, name);
+        strcpy(this->dob, dob);
+        this->create_account(cust_id, 'C');
+        this->transit_amount(bal);
+        cust_id += 12;
+    }
+
+    Customer(Customer &C)                                               // copy constructor
+    {
+        strcpy(this->name, C.name);
+        strcpy(this->dob, C.dob);
+        this->create_account(C.cust_id, 'C');
+        this->transit_amount(C.acc->balance);
+    }
 };
 
 class Employee : public Individual
 {
+private:
+    static int emp_id;
+
 public:
     char designation[20];
+    int inc_percent = 2;
     Employee()
     {
         float bal;
@@ -160,15 +186,57 @@ public:
         cin.getline(this->dob, 9);
         cout << "Employee's DESIGNATION: ";
         cin.getline(this->designation, 20);
-        this->create_account(emp_id, 'C');
+        this->create_account(emp_id, 'E');
         this->transit_amount(bal);
         emp_id += 12;
+    }
+
+    Employee(float bal, char name[20], char dob[9], char desgn[20])
+    {
+        strcpy(this->name, name);
+        strcpy(this->dob, dob);
+        strcpy(this->designation, desgn);
+        this->create_account(emp_id, 'E');
+        this->transit_amount(bal);
+        emp_id += 12;
+    }
+
+    void base_sal()
+    {
+        cout << "Your base salary starts at 30000.00" << endl;
+        cout << "And your annual increment is " << inc_percent << "%." << endl;
     }
 };
 
 class Bank
 {
+private:
+    Employee *emp_bucket = (Employee *)malloc(sizeof(Employee) * 10); // array of objects
+    Customer *cust_bucket = (Customer *)malloc(sizeof(Customer) * 10);
+    int cur_emp_idx = 0;
+    int cur_cust_idx = 0;
+
+public:
+    static int emp_id;
+    static int cust_id;
+    void register_customer(Customer);
+    void register_employee(Employee);
+    ~Bank()                                                           // destructor
+    {
+        free(emp_bucket);
+        free(cust_bucket);
+    }
 };
+
+void Bank::register_employee(Employee e)
+{
+    emp_bucket[cur_emp_idx++] = e;
+}
+
+void Bank::register_customer(Customer c)
+{
+    cust_bucket[cur_cust_idx++] = c;
+}
 
 void format_date(char dob[8])
 {
@@ -183,11 +251,15 @@ void format_date(char dob[8])
     }
 }
 
+int Employee::emp_id = 10001;
+int Customer::cust_id = 10012;
+
 int main()
 {
-    Customer c1;
-    c1.transit_amount(-23);
-    c1.transit_amount(70);
+    char name[20] = "amrit";
+    char dob[9] = "23091997";
+    Customer c1(12000, name, dob);
+    Customer c2 = c1;
+    c2.display_account_details();
     c1.display_account_details();
-    return 0;
 }
