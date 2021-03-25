@@ -3,36 +3,8 @@ title: BANK MANAGEMENT APP
 description:
     This project roughly includes nearly all the topics taught
     in CS_5303 Problem Solving with Programming Course
-
-    LIST OF TOPICS:
-        1. Data Types:
-            - Primitive:
-                + int, floats, bool etc.
-                + quantifiers
-                + qualifiers
-            - User Defined:
-                + struct
-        2. Operators:
-            - Arithmetic:
-                +, -, /, *, %
-            - Logical:
-                &&, ||, ? :
-            - Comparision:
-                >, <, ==, <=, >=, !=
-            - Assignment:
-                *=, /=, %= etc.
-        3. Functions
-            - functions as sub routines
-            - functions as first class variables
-        4. Classes & Objects
-            - Member variables
-            - Member functions
-            - Constructors
-            - Destructors
-            - Accessors & Mutators
-
-
 */
+
 #include <iostream>
 #include <string.h>
 #include <iomanip>
@@ -44,14 +16,18 @@ using namespace std;
 int menu()
 {
     unsigned int res;
+    cout << "\n";
     cout << "\tChoose option: " << endl;
     cout << "\t1. Find customer by id" << endl;
     cout << "\t2. Last Registered Customer" << endl;
     cout << "\t3. Add a customer" << endl;
     cout << "\t4. Display all accounts" << endl;
     cout << "\t5. Calculate net wealth in bank" << endl;
-    cout << "\t6. Exit" << endl;
-    cout << "YOUR RESPONSE: ";
+    cout << "\t6. Edit details of customer" << endl;
+    cout << "\t7. Compare wealth" << endl;
+    cout << "\t8. Exit" << endl;
+    cout << "\n";
+    cout << "\tYOUR RESPONSE >> ";
     cin >> res;
     return res;
 }
@@ -79,7 +55,7 @@ public:
     {
         return this->dob;
     }
-    int get_id()
+    const int get_id()
     {
         return id;
     }
@@ -87,7 +63,7 @@ public:
     {
         return balance;
     }
-    char get_type()
+    const char get_type()
     {
         return this->type;
     }
@@ -95,9 +71,17 @@ public:
     {
         strcpy(this->name, name.c_str());
     }
+    void set_name(char name[])
+    {
+        strcpy(this->name, name);
+    }
     void set_dob(string dob)
     {
         strcpy(this->dob, dob.c_str());
+    }
+    void set_dob(char dob[])
+    {
+        strcpy(this->dob, dob);
     }
     void set_id(int id)
     {
@@ -151,6 +135,7 @@ public:
         set_id(c.get_id());
         set_bal(c.get_bal());
     }
+
     void display_details()
     {
         cout << "\t---- ACCOUNT DETAILS ----" << endl;
@@ -161,32 +146,38 @@ public:
         format_date(*this);
         cout << endl;
         cout << "\tNET BALANCE: INR " << get_bal() << endl;
-        cout << "\t-------------------------" << endl << endl;
+        cout << "\t-------------------------" << endl
+             << endl;
     }
     void display_details_hor()
     {
-        cout << get_id() << setw(TWIDTH);
-        cout << get_type() << setw(TWIDTH);
-        cout << get_name() << setw(TWIDTH);
-        format_date(*this);
-        cout << setw(TWIDTH);
-        cout << get_bal();
-        cout << endl;
+        cout << *this;
     }
 
-    friend istream &operator>>(istream &input, Customer &c1)
+    void edit()
     {
         char name[20], dob[9];
         float idepo;
-        input.getline(name, 20);
-        input.getline(dob, 9);
-        input >> idepo;
-        c1.set_name(name);
-        c1.set_dob(dob);
-        c1.set_id(cust_id++);
-        c1.set_bal(idepo);
-        cout << name << dob << idepo;
-        return input;
+        cout << "Enter Name: ";
+        cin.getline(name, 20);
+        cout << "Enter DOB: ";
+        cin.getline(dob, 9);
+        cout << "Enter initial deposit amount: ";
+        cin >> idepo;
+        set_name(name);
+        set_dob(dob);
+        set_id(cust_id++);
+        set_bal(idepo);
+    }
+
+    friend ostream &operator<<(ostream &out, Customer &c)
+    {
+        out << c.get_id() << setw(TWIDTH);
+        out << c.get_type() << setw(TWIDTH);
+        out << c.get_name() << setw(TWIDTH);
+        format_date(c);
+        out << setw(TWIDTH + 5) << c.get_bal() << endl;
+        return out;
     }
 };
 
@@ -217,29 +208,38 @@ public:
     }
     void display_all_cust()
     {
-        cout << "ID" << setw(TWIDTH+10) << "NAME" << setw(TWIDTH+10) << "DOB" << setw(TWIDTH+10) << "BALANCE" << endl;
+        cout << "ID" << setw(TWIDTH + 10) << "NAME" << setw(TWIDTH + 10) << "DOB" << setw(TWIDTH + 10) << "BALANCE" << endl;
         for (int i = 0; i < curr_cust_num; i++)
         {
             this->customers[i].display_details_hor();
         }
     }
-    Customer get_cust_by_id()
+    Customer &get_cust_by_id(int id)
     {
-        int id;
         Customer cx;
-        cout << "Enter id number: ";
-        cin >> id;
+        bool found = 0;
         for (int i = 0; i < get_cur_cus_num(); i++)
         {
             if (get_customer_list()[i].get_id() == id)
             {
                 cx = get_customer_list()[i];
-                cx.display_details();
-                return cx;
+                found = 1;
             }
         }
-        cout << "\tCustomer was not found!";
-        return cx;
+        if (!found)
+        {
+            cout << "\tCustomer was not found!";
+        }
+        Customer &tx = cx;
+        return tx;
+    }
+    void find_cust_by_id()
+    {
+        int id;
+        cout << "Enter customer ID: ";
+        cin >> id;
+        Customer &c = get_cust_by_id(id);
+        cout << c;
     }
     void add_customer(Customer c)
     {
@@ -248,11 +248,29 @@ public:
     void add_customer_prompt()
     {
         Customer c;
-        cout << "Enter all details of customer: ";
-        cin >> c;
+        c.edit();
         add_customer(c);
-        cout << "Customer was added successfully!" << endl;
+        cout << "Customer was successfully added." << endl;
     }
+
+    void edit_customer()
+    {
+        int sid;
+        cout << "Enter customer ID: ";
+        cin >> sid;
+        Customer sc = get_cust_by_id(sid);
+        sc.edit();
+        cout << "Customer details have been edited!";
+    }
+
+    template<class T>
+    void compare_wealth(Customer &c1, Customer &c2)
+    {
+        c1.get_bal() > c2.get_bal() ?  
+        cout << c1.get_name() << " is richer." << endl :
+        cout << c2.get_name() << " is richer." << endl; 
+    }
+
     float calc_net_wealth()
     {
         float sum = 0.0;
@@ -262,18 +280,19 @@ public:
         }
         cout << "------------------------" << endl;
         cout << "NET WEALTH = INR " << sum << endl;
-        cout << "------------------------" << endl;
+        cout << "------------------------";
         return sum;
     }
     void start()
     {
-        system("clear");
+        system("cls");
+        cout << "\tWelcome to " << name << endl;
         while (true)
         {
             switch (menu())
             {
             case 1:
-                get_cust_by_id();
+                find_cust_by_id();
                 cout << "\n";
                 break;
             case 2:
@@ -293,6 +312,14 @@ public:
                 cout << "\n";
                 break;
             case 6:
+                edit_customer();
+                cout << "\n";
+                break;
+            case 7:
+                
+                break;
+            case 8:
+                system("cls");
                 exit(0);
                 break;
             default:
@@ -314,8 +341,6 @@ public:
     }
 };
 
-
-
 void format_date(Individual person)
 {
     int i = 1;
@@ -327,15 +352,6 @@ void format_date(Individual person)
         }
         cout << person.dob[i++ - 1];
     }
-}
-
-void add_new_customer(Bank b1)
-{
-    Customer c1;
-    cout << "Enter customer details: ";
-    cin >> c1;
-    b1.add_customer(c1);
-    cout << "Customer was added successfully!";
 }
 
 int Customer::cust_id = 10000;
@@ -365,10 +381,7 @@ int main()
         strcpy(name, names[i].c_str());
         strcpy(dob, dobs[i].c_str());
         Customer c(name, dob, initial_deposits[i]);
-        cout << c.get_name();
         b1.add_customer(c);
-        cout << b1.get_cur_cus_num() << " ";
-        cout << b1.get_customer_list()[i].get_name() << endl;
         i++;
     }
     b1.start();
