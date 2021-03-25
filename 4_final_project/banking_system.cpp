@@ -3,7 +3,8 @@
 #include <iomanip>
 using namespace std;
 
-void format_date(char[8]);
+#define TOTAL_CUSTOMERS 10
+#define TOTAL_EMPLOYEES 5
 
 struct Account
 {
@@ -20,9 +21,10 @@ struct Statement
     struct Statement *next;
 };
 
-class Individual // base class
+class Individual
 {
 public:
+    int id;
     char dob[8], name[20];
     struct Account *acc;
     Individual()
@@ -34,15 +36,18 @@ public:
     void create_account(int, char, float);
     void display_account_details();
     void transit_amount(float);
-    virtual void base_sal() // virtual functions
+    virtual void base_sal()
     {
         cout << "Your base salary is 0.0";
     }
+    virtual void produce_details();
+    friend void format_date(Individual);
+    friend void display_details(Individual &);
 };
 
-void Individual::create_account(int id, char type, float bal = 0) // scope resolution operator
+void Individual::create_account(int id, char type, float bal = 0)
 {
-    struct Account *acc = new struct Account; // dynamic memory allocation
+    struct Account *acc = new struct Account;
     struct Statement *stmt = new struct Statement;
 
     stmt->amount = 0;
@@ -54,6 +59,8 @@ void Individual::create_account(int id, char type, float bal = 0) // scope resol
     acc->stmt_list = stmt;
 
     this->acc = acc;
+
+    this->id = id;
 }
 
 void Individual::display_account_details()
@@ -61,7 +68,7 @@ void Individual::display_account_details()
     char res;
     cout << "\tHolder's NAME: " << name << endl;
     cout << "\tHolder's DOB: ";
-    format_date(this->dob);
+    format_date(*this);
     cout << endl;
     cout << "\tAccount ID: " << acc->acc_id << endl;
     cout << "\tAccount TYPE: " << acc->type << endl;
@@ -130,7 +137,12 @@ void Individual::transit_amount(float amt)
     s->next = stmt;
 }
 
-class Customer : public Individual // derived class: inheritence
+void display_details(Individual &indv)
+{
+    indv.produce_details();
+}
+
+class Customer : public Individual
 {
 private:
     static int cust_id;
@@ -159,12 +171,24 @@ public:
         cust_id += 12;
     }
 
-    Customer(Customer &C)                                               // copy constructor
+    Customer(Customer &C)
     {
         strcpy(this->name, C.name);
         strcpy(this->dob, C.dob);
         this->create_account(C.cust_id, 'C');
         this->transit_amount(C.acc->balance);
+    }
+
+    void produce_details()
+    {
+        cout << "\tCustomer's ID: " << id << endl;
+        cout << "\tHolder's NAME: " << name << endl;
+        cout << "\tHolder's DOB: ";
+        format_date(*this);
+        cout << endl;
+        cout << "\tAccount ID: " << acc->acc_id << endl;
+        cout << "\tAccount TYPE: " << acc->type << endl;
+        cout << "\tBALANCE: " << acc->balance << endl;
     }
 };
 
@@ -206,39 +230,21 @@ public:
         cout << "Your base salary starts at 30000.00" << endl;
         cout << "And your annual increment is " << inc_percent << "%." << endl;
     }
-};
 
-class Bank
-{
-private:
-    Employee *emp_bucket = (Employee *)malloc(sizeof(Employee) * 10); // array of objects
-    Customer *cust_bucket = (Customer *)malloc(sizeof(Customer) * 10);
-    int cur_emp_idx = 0;
-    int cur_cust_idx = 0;
-
-public:
-    static int emp_id;
-    static int cust_id;
-    void register_customer(Customer);
-    void register_employee(Employee);
-    ~Bank()                                                           // destructor
+    void produce_details()
     {
-        free(emp_bucket);
-        free(cust_bucket);
+        cout << "\tEmployee's ID: " << id << endl;
+        cout << "\tEmployee's NAME: " << name << endl;
+        cout << "\tEmployee's DOB: ";
+        format_date(*this);
+        cout << endl;
+        cout << "\tAccount ID: " << acc->acc_id << endl;
+        cout << "\tAccount TYPE: " << acc->type << endl;
+        cout << "\tBALANCE: " << acc->balance << endl;
     }
 };
 
-void Bank::register_employee(Employee e)
-{
-    emp_bucket[cur_emp_idx++] = e;
-}
-
-void Bank::register_customer(Customer c)
-{
-    cust_bucket[cur_cust_idx++] = c;
-}
-
-void format_date(char dob[8])
+void format_date(Individual person)
 {
     int i = 1;
     while (i != 9)
@@ -247,19 +253,24 @@ void format_date(char dob[8])
         {
             cout << "-";
         }
-        cout << dob[i++ - 1];
+        cout << person.dob[i++ - 1];
     }
 }
 
 int Employee::emp_id = 10001;
 int Customer::cust_id = 10012;
 
+class Bank
+{
+private:
+    Customer customers[TOTAL_CUSTOMERS];
+    Employee employees[TOTAL_EMPLOYEES];
+public:
+    void add_customer();
+    void add_employee();
+    void prompt();
+};
+
 int main()
 {
-    char name[20] = "amrit";
-    char dob[9] = "23091997";
-    Customer c1(12000, name, dob);
-    Customer c2 = c1;
-    c2.display_account_details();
-    c1.display_account_details();
 }
