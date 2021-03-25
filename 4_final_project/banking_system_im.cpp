@@ -95,7 +95,6 @@ public:
     {
         type = t;
     }
-    friend void format_date(Individual);
     void deposit(float amt)
     {
         float amount = amt;
@@ -108,7 +107,7 @@ public:
         xyz.bal = amount;
         balance = xyz.bal;
     }
-    // virtual void display_details();
+    virtual void display_details()=0;
     ~Individual()
     {
     }
@@ -179,6 +178,8 @@ public:
         out << setw(TWIDTH + 5) << c.get_bal() << endl;
         return out;
     }
+
+    friend void format_date(Customer);
 };
 
 class Bank
@@ -263,12 +264,16 @@ public:
         cout << "Customer details have been edited!";
     }
 
-    template<class T>
-    void compare_wealth(Customer &c1, Customer &c2)
+    void compare_wealth()
     {
+        int id1, id2;
+        cout << "Enter id(s) of two customers: ";
+        cin >> id1 >> id2;
+        Customer &c1 = get_cust_by_id(id1);
+        Customer &c2 = get_cust_by_id(id2);
         c1.get_bal() > c2.get_bal() ?  
-        cout << c1.get_name() << " is richer." << endl :
-        cout << c2.get_name() << " is richer." << endl; 
+        cout  << "Customer with ID " << c1.get_id() << " is richer." << endl :
+        cout  << "Customer with ID " << c2.get_id() << " is richer." << endl ; 
     }
 
     float calc_net_wealth()
@@ -316,7 +321,8 @@ public:
                 cout << "\n";
                 break;
             case 7:
-                
+                compare_wealth();
+                cout << "\n";
                 break;
             case 8:
                 system("cls");
@@ -341,16 +347,18 @@ public:
     }
 };
 
-void format_date(Individual person)
+void format_date(Customer person)
 {
     int i = 1;
+    char dob[9];
+    strcpy(dob, person.get_dob());
     while (i != 9)
     {
         if (i == 3 || i == 5)
         {
             cout << "-";
         }
-        cout << person.dob[i++ - 1];
+        cout << dob[i++ - 1];
     }
 }
 
