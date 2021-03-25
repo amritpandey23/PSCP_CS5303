@@ -39,8 +39,22 @@ description:
 using namespace std;
 
 #define TOTAL_CUSTOMERS 10
-#define TOTAL_EMPLOYEES 5
+#define TWIDTH 12
 
+int menu()
+{
+    unsigned int res;
+    cout << "\tChoose option: " << endl;
+    cout << "\t1. Find customer by id" << endl;
+    cout << "\t2. Last Registered Customer" << endl;
+    cout << "\t3. Add a customer" << endl;
+    cout << "\t4. Display all accounts" << endl;
+    cout << "\t5. Calculate net wealth in bank" << endl;
+    cout << "\t6. Exit" << endl;
+    cout << "YOUR RESPONSE: ";
+    cin >> res;
+    return res;
+}
 class Individual
 {
 private:
@@ -55,6 +69,7 @@ public:
         strcpy(this->name, name);
         strcpy(this->dob, dob);
         this->id = id;
+        this->type = 'C';
     }
     char *get_name()
     {
@@ -74,27 +89,15 @@ public:
     }
     char get_type()
     {
-        return type;
+        return this->type;
     }
-    void set_name(char *name)
+    void set_name(string name)
     {
-        int i = 0;
-        char s;
-        while (s != '\0')
-        {
-            s = name[i++];
-            this->name[i] = s;
-        }
+        strcpy(this->name, name.c_str());
     }
-    void set_dob(char *dob)
+    void set_dob(string dob)
     {
-        int i = 0;
-        char s;
-        while (s != '\0')
-        {
-            s = dob[i++];
-            this->dob[i] = s;
-        }
+        strcpy(this->dob, dob.c_str());
     }
     void set_id(int id)
     {
@@ -121,7 +124,7 @@ public:
         xyz.bal = amount;
         balance = xyz.bal;
     }
-    virtual void display_details();
+    // virtual void display_details();
     ~Individual()
     {
     }
@@ -150,26 +153,40 @@ public:
     }
     void display_details()
     {
+        cout << "\t---- ACCOUNT DETAILS ----" << endl;
         cout << "\tACCOUNT TYPE: " << get_type() << endl;
         cout << "\tID: " << get_id() << endl;
         cout << "\tNAME: " << get_name() << endl;
         cout << "\tDOB: ";
         format_date(*this);
         cout << endl;
+        cout << "\tNET BALANCE: INR " << get_bal() << endl;
+        cout << "\t-------------------------" << endl << endl;
+    }
+    void display_details_hor()
+    {
+        cout << get_id() << setw(TWIDTH);
+        cout << get_type() << setw(TWIDTH);
+        cout << get_name() << setw(TWIDTH);
+        format_date(*this);
+        cout << setw(TWIDTH);
+        cout << get_bal();
+        cout << endl;
     }
 
-    friend istream &operator>>(istream &s, Customer &c1)
+    friend istream &operator>>(istream &input, Customer &c1)
     {
         char name[20], dob[9];
         float idepo;
-        s.getline(name, 20);
-        s.getline(dob, 9);
-        s >> idepo;
+        input.getline(name, 20);
+        input.getline(dob, 9);
+        input >> idepo;
         c1.set_name(name);
         c1.set_dob(dob);
         c1.set_id(cust_id++);
         c1.set_bal(idepo);
-        return s;
+        cout << name << dob << idepo;
+        return input;
     }
 };
 
@@ -198,6 +215,14 @@ public:
     {
         return curr_cust_num;
     }
+    void display_all_cust()
+    {
+        cout << "ID" << setw(TWIDTH+10) << "NAME" << setw(TWIDTH+10) << "DOB" << setw(TWIDTH+10) << "BALANCE" << endl;
+        for (int i = 0; i < curr_cust_num; i++)
+        {
+            this->customers[i].display_details_hor();
+        }
+    }
     Customer get_cust_by_id()
     {
         int id;
@@ -213,38 +238,68 @@ public:
                 return cx;
             }
         }
-        cout << "Customer was not found!";
+        cout << "\tCustomer was not found!";
         return cx;
     }
     void add_customer(Customer c)
     {
         customers[curr_cust_num++] = c;
     }
+    void add_customer_prompt()
+    {
+        Customer c;
+        cout << "Enter all details of customer: ";
+        cin >> c;
+        add_customer(c);
+        cout << "Customer was added successfully!" << endl;
+    }
+    float calc_net_wealth()
+    {
+        float sum = 0.0;
+        for (int i = 0; i < curr_cust_num; i++)
+        {
+            sum += customers[i].get_bal();
+        }
+        cout << "------------------------" << endl;
+        cout << "NET WEALTH = INR " << sum << endl;
+        cout << "------------------------" << endl;
+        return sum;
+    }
     void start()
     {
-        unsigned int res;
-        cout << "Welcome to " << name << endl;
-        cout << "\tChoose option: " << endl;
-        cout << "\t1. Find customer by id" << endl;
-        cout << "\t2. Last Registered Customer" << endl;
-        cout << "\t3. Add a customer" << endl;
-        cout << "\t4. List all accounts" << endl;
-        cout << "\t5. Exit" << endl;
-        cout << "YOUR RESPONSE: ";
-        cin >> res;
-        switch (res)
+        system("clear");
+        while (true)
         {
-        case 1:
-            get_cust_by_id();
-            break;
-        case 2:
-            get_latest_customer();
-            break;
-        case 5:
-            exit(0);
-            break;
-        default:
-            cout << "Invalid response, try again." << endl;
+            switch (menu())
+            {
+            case 1:
+                get_cust_by_id();
+                cout << "\n";
+                break;
+            case 2:
+                get_latest_customer();
+                cout << "\n";
+                break;
+            case 3:
+                add_customer_prompt();
+                cout << "\n";
+                break;
+            case 4:
+                display_all_cust();
+                cout << "\n";
+                break;
+            case 5:
+                calc_net_wealth();
+                cout << "\n";
+                break;
+            case 6:
+                exit(0);
+                break;
+            default:
+                cout << "Invalid response, try again." << endl;
+                cout << "\n";
+                break;
+            }
         }
     }
     void get_latest_customer()
@@ -258,6 +313,8 @@ public:
         delete cus;
     }
 };
+
+
 
 void format_date(Individual person)
 {
@@ -285,22 +342,25 @@ int Customer::cust_id = 10000;
 
 int main()
 {
-    string names[3] = {
+    string names[4] = {
         "Amrit Pandey",
         "Fhulki Devi",
-        "Nivesh Yadav"};
-    string dobs[3] = {
+        "Nivesh Yadav",
+        "Neo Yamaji"};
+    string dobs[4] = {
         "23091997",
         "22081996",
-        "21071995"};
-    float initial_deposits[3] = {
+        "21071995",
+        "12122012"};
+    float initial_deposits[4] = {
         12000.00,
         13000.00,
-        14000.00};
+        14000.00,
+        34000.00};
     int i = 0;
     char name[20], dob[9];
     Bank b1("National Bank of India");
-    while (i < 3)
+    while (i < 4)
     {
         strcpy(name, names[i].c_str());
         strcpy(dob, dobs[i].c_str());
