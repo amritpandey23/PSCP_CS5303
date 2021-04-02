@@ -283,9 +283,9 @@ public:
         {
             sum += customers[i].get_bal();
         }
-        cout << "------------------------" << endl;
-        cout << "NET WEALTH = INR " << sum << endl;
-        cout << "------------------------";
+        cout << "\t------------------------" << endl;
+        cout << "\tNET WEALTH = INR " << sum << endl;
+        cout << "\t------------------------";
         return sum;
     }
     void start()
